@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MC Host Panel – Minecraft Server selbst hosten</title>
+<meta name="description" content="MC Host Panel ist eine kostenlose Desktop- und Server-App zum Verwalten von Minecraft-Servern. Download für Windows, Linux und Docker.">
+<style>
+  :root {
+    --bg:      #0d1117;
+    --bg2:     #161b22;
+    --bg3:     #21262d;
+    --border:  #30363d;
+    --accent:  #238636;
+    --accent2: #2ea043;
+    --blue:    #58a6ff;
+    --text:    #e6edf3;
+    --text2:   #8b949e;
+    --red:     #f85149;
+    --yellow:  #d29922;
+    --purple:  #a371f7;
+    --radius:  12px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 15px;
+  }
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  img { max-width: 100%; }
+
+  /* ── Nav ─────────────────────────────────────────────────────────────── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(13,17,23,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    height: 60px;
+    display: flex; align-items: center;
+    padding: 0 32px;
+    gap: 32px;
+  }
+  .nav-logo {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 700; font-size: 16px; color: var(--text);
+    text-decoration: none; flex-shrink: 0;
+  }
+  .nav-logo-icon { font-size: 22px; }
+  .nav-links { display: flex; gap: 24px; flex: 1; }
+  .nav-links a {
+    color: var(--text2); font-size: 14px; font-weight: 500;
+    transition: color 0.15s; text-decoration: none;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta {
+    background: var(--accent); color: #fff;
+    border-radius: 6px; padding: 7px 16px;
+    font-size: 13px; font-weight: 600;
+    transition: background 0.15s; text-decoration: none;
+  }
+  .nav-cta:hover { background: var(--accent2); text-decoration: none; }
+
+  /* ── Sections ────────────────────────────────────────────────────────── */
+  section { padding: 80px 32px; max-width: 1100px; margin: 0 auto; }
+  .section-label {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(35,134,54,0.12); border: 1px solid rgba(35,134,54,0.3);
+    color: var(--accent2); border-radius: 20px;
+    padding: 4px 14px; font-size: 12px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin-bottom: 18px;
+  }
+  h2 { font-size: 32px; font-weight: 700; margin-bottom: 12px; line-height: 1.3; }
+  .sub { font-size: 17px; color: var(--text2); max-width: 620px; line-height: 1.7; }
+
+  /* ── Hero ────────────────────────────────────────────────────────────── */
+  #hero {
+    padding: 100px 32px 80px;
+    max-width: 1100px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 60px; align-items: center;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(88,166,255,0.1); border: 1px solid rgba(88,166,255,0.25);
+    color: var(--blue); border-radius: 20px;
+    padding: 4px 14px; font-size: 12px; font-weight: 600;
+    margin-bottom: 20px;
+  }
+  .hero-title {
+    font-size: 48px; font-weight: 800; line-height: 1.15;
+    margin-bottom: 18px;
+    background: linear-gradient(135deg, #e6edf3 0%, #58a6ff 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-sub {
+    font-size: 18px; color: var(--text2); margin-bottom: 32px;
+    line-height: 1.7; max-width: 480px;
+  }
+  .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--accent); color: #fff;
+    border-radius: 8px; padding: 12px 24px;
+    font-size: 15px; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: background 0.15s, transform 0.1s;
+    text-decoration: none;
+  }
+  .btn-primary:hover { background: var(--accent2); transform: translateY(-1px); text-decoration: none; }
+  .btn-secondary {
+    background: var(--bg3); color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 24px;
+    font-size: 15px; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    text-decoration: none;
+  }
+  .btn-secondary:hover { background: var(--bg2); border-color: var(--blue); transform: translateY(-1px); text-decoration: none; }
+  .hero-meta {
+    margin-top: 20px; display: flex; gap: 20px;
+    font-size: 13px; color: var(--text2);
+  }
+  .hero-meta span { display: flex; align-items: center; gap: 5px; }
+
+  /* Hero visual */
+  .hero-visual {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .mock-titlebar {
+    height: 38px;
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 14px; gap: 8px;
+  }
+  .mock-dot { width: 12px; height: 12px; border-radius: 50%; }
+  .mock-dot.red { background: #f85149; }
+  .mock-dot.yellow { background: #e3b341; }
+  .mock-dot.green { background: var(--accent2); }
+  .mock-title { flex: 1; text-align: center; font-size: 12px; color: var(--text2); font-weight: 600; }
+  .mock-body { padding: 20px; }
+  .mock-stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+  .mock-stat {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px;
+  }
+  .mock-stat-label { font-size: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .mock-stat-val { font-size: 15px; font-weight: 700; }
+  .mock-stat-val.green { color: var(--accent2); }
+  .mock-stat-val.blue { color: var(--blue); }
+  .mock-console {
+    background: #010409; border-radius: 6px; padding: 12px;
+    font-family: monospace; font-size: 11px; color: #8b949e;
+    line-height: 1.7;
+  }
+  .mock-console .g { color: var(--accent2); }
+  .mock-console .b { color: var(--blue); }
+  .mock-console .y { color: #e3b341; }
+  .mock-btns { display: flex; gap: 8px; margin-bottom: 14px; }
+  .mock-btn {
+    padding: 6px 14px; border-radius: 6px;
+    font-size: 11px; font-weight: 600;
+    border: 1px solid var(--border);
+  }
+  .mock-btn.green { background: rgba(35,134,54,0.2); color: var(--accent2); border-color: var(--accent); }
+  .mock-btn.red { background: rgba(248,81,73,0.12); color: var(--red); border-color: rgba(248,81,73,0.4); }
+  .mock-btn.gray { background: var(--bg3); color: var(--text2); }
+
+  /* ── Stats bar ───────────────────────────────────────────────────────── */
+  .stats-bar {
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 32px;
+  }
+  .stats-inner {
+    max-width: 1100px; margin: 0 auto;
+    display: flex; justify-content: space-around; gap: 20px;
+  }
+  .stat-item { text-align: center; }
+  .stat-num { font-size: 28px; font-weight: 800; color: var(--accent2); }
+  .stat-desc { font-size: 13px; color: var(--text2); margin-top: 2px; }
+
+  /* ── Features ────────────────────────────────────────────────────────── */
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px; margin-top: 48px;
+  }
+  .feature-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .feature-card:hover { border-color: rgba(88,166,255,0.4); transform: translateY(-2px); }
+  .feature-icon {
+    width: 42px; height: 42px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; margin-bottom: 14px;
+  }
+  .feature-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+  .feature-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+  /* ── Download ────────────────────────────────────────────────────────── */
+  #download { border-top: 1px solid var(--border); }
+  .download-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 16px; margin-top: 48px;
+  }
+  .dl-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    display: flex; flex-direction: column;
+    transition: border-color 0.2s;
+  }
+  .dl-card:hover { border-color: rgba(35,134,54,0.5); }
+  .dl-card.featured {
+    border-color: var(--accent);
+    background: rgba(35,134,54,0.06);
+  }
+  .dl-tag {
+    display: inline-block;
+    background: var(--accent); color: #fff;
+    font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    border-radius: 4px; padding: 2px 8px;
+    margin-bottom: 14px; align-self: flex-start;
+  }
+  .dl-tag.blue { background: var(--blue); }
+  .dl-tag.gray { background: var(--bg3); color: var(--text2); border: 1px solid var(--border); }
+  .dl-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .dl-card p { font-size: 13px; color: var(--text2); line-height: 1.6; flex: 1; margin-bottom: 20px; }
+  .dl-card .btn-dl {
+    background: var(--accent); color: #fff;
+    border-radius: 7px; padding: 10px 18px;
+    font-size: 13px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+    transition: background 0.15s; text-decoration: none;
+  }
+  .dl-card.featured .btn-dl:hover { background: var(--accent2); }
+  .dl-card:not(.featured) .btn-dl { background: var(--bg3); color: var(--text); border: 1px solid var(--border); }
+  .dl-card:not(.featured) .btn-dl:hover { background: var(--bg2); border-color: var(--blue); }
+  .dl-note { font-size: 11px; color: var(--text2); margin-top: 10px; text-align: center; }
+
+  /* ── Docs ────────────────────────────────────────────────────────────── */
+  #docs { border-top: 1px solid var(--border); }
+  .docs-grid {
+    display: grid; grid-template-columns: 1fr 2fr;
+    gap: 40px; margin-top: 48px;
+  }
+  .docs-nav { display: flex; flex-direction: column; gap: 4px; }
+  .docs-nav-item {
+    padding: 8px 14px; border-radius: 6px;
+    font-size: 13px; font-weight: 500; color: var(--text2);
+    cursor: pointer; transition: background 0.15s, color 0.15s;
+    border: none; background: none; text-align: left;
+  }
+  .docs-nav-item:hover, .docs-nav-item.active {
+    background: var(--bg3); color: var(--text);
+  }
+  .docs-nav-item.active { color: var(--blue); }
+  .docs-nav-section {
+    font-size: 11px; font-weight: 700; color: var(--text2);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    padding: 14px 14px 6px;
+  }
+  .docs-content { min-height: 400px; }
+  .doc-page { display: none; }
+  .doc-page.active { display: block; }
+  .doc-page h3 { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
+  .doc-page h4 { font-size: 15px; font-weight: 700; margin: 24px 0 10px; color: var(--text2); }
+  .doc-page p { font-size: 14px; color: var(--text2); line-height: 1.7; margin-bottom: 12px; }
+  .doc-page ul { padding-left: 20px; margin-bottom: 12px; }
+  .doc-page li { font-size: 14px; color: var(--text2); margin-bottom: 6px; line-height: 1.6; }
+  .doc-page li strong { color: var(--text); }
+  code {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 4px; padding: 2px 7px;
+    font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    font-size: 12px; color: #e3b341;
+  }
+  pre {
+    background: #010409; border: 1px solid var(--border);
+    border-radius: 8px; padding: 16px 18px;
+    font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    font-size: 12px; line-height: 1.7;
+    overflow-x: auto; margin: 14px 0;
+    color: #c9d1d9;
+  }
+  pre .c { color: var(--text2); }
+  pre .g { color: var(--accent2); }
+  pre .b { color: var(--blue); }
+  pre .y { color: #e3b341; }
+  .step-list { counter-reset: steps; list-style: none; padding: 0; }
+  .step-list li {
+    counter-increment: steps;
+    display: flex; gap: 14px; margin-bottom: 16px;
+    align-items: flex-start;
+  }
+  .step-list li::before {
+    content: counter(steps);
+    min-width: 28px; height: 28px;
+    background: var(--accent); color: #fff;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 1px;
+  }
+  .step-list li div { font-size: 14px; color: var(--text2); line-height: 1.6; }
+  .step-list li strong { color: var(--text); display: block; margin-bottom: 2px; }
+  .info-box {
+    background: rgba(88,166,255,0.08);
+    border: 1px solid rgba(88,166,255,0.25);
+    border-radius: 8px; padding: 14px 16px;
+    font-size: 13px; color: var(--blue);
+    margin: 14px 0; line-height: 1.6;
+  }
+  .warn-box {
+    background: rgba(210,153,34,0.08);
+    border: 1px solid rgba(210,153,34,0.3);
+    border-radius: 8px; padding: 14px 16px;
+    font-size: 13px; color: var(--yellow);
+    margin: 14px 0; line-height: 1.6;
+  }
+
+  /* ── FAQ ─────────────────────────────────────────────────────────────── */
+  #faq { border-top: 1px solid var(--border); }
+  .faq-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 16px; margin-top: 48px;
+  }
+  .faq-item {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 22px;
+  }
+  .faq-item h4 { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+  .faq-item p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+  /* ── Footer ──────────────────────────────────────────────────────────── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px 32px;
+    text-align: center;
+    color: var(--text2); font-size: 13px;
+  }
+  footer .footer-logo {
+    font-size: 16px; font-weight: 700; color: var(--text);
+    margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+    justify-content: center;
+  }
+  footer p { margin-top: 6px; }
+  footer .footer-links { display: flex; justify-content: center; gap: 24px; margin-top: 14px; }
+  footer .footer-links a { color: var(--text2); font-size: 13px; }
+  footer .footer-links a:hover { color: var(--text); }
+
+  /* ── Responsive ──────────────────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    #hero { grid-template-columns: 1fr; }
+    .hero-visual { display: none; }
+    .hero-title { font-size: 36px; }
+    .feature-grid { grid-template-columns: 1fr 1fr; }
+    .download-grid { grid-template-columns: 1fr; }
+    .docs-grid { grid-template-columns: 1fr; }
+    .faq-grid { grid-template-columns: 1fr; }
+    .stats-inner { flex-wrap: wrap; justify-content: center; }
+  }
+  @media (max-width: 600px) {
+    nav { padding: 0 16px; }
+    #hero { padding: 60px 16px; }
+    section { padding: 60px 16px; }
+    .hero-title { font-size: 28px; }
+    .feature-grid { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+    h2 { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Navigation ───────────────────────────────────────────────────────── -->
+<nav>
+  <a class="nav-logo" href="#">
+    <span class="nav-logo-icon">⛏️</span>
+    MC Host Panel
+  </a>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#download">Download</a>
+    <a href="#docs">Dokumentation</a>
+    <a href="#faq">FAQ</a>
+  </div>
+  <a href="#download" class="nav-cta">⬇ Herunterladen</a>
+</nav>
+
+<!-- ── Hero ─────────────────────────────────────────────────────────────── -->
+<div id="hero">
+  <div>
+    <div class="hero-badge">✨ Kostenlos &amp; Open Source &nbsp;·&nbsp; v1.0.0</div>
+    <h1 class="hero-title">Minecraft Server<br>selbst hosten.</h1>
+    <p class="hero-sub">MC Host Panel ist eine Desktop-App und Web-Oberfläche zum Verwalten von Minecraft-Servern — ohne Terminal-Kenntnisse, direkt auf deinem PC oder VPS.</p>
+    <div class="hero-btns">
+      <a href="#download" class="btn-primary">⬇ Herunterladen</a>
+      <a href="#docs" class="btn-secondary">📖 Dokumentation</a>
+    </div>
+    <div class="hero-meta">
+      <span>🪟 Windows</span>
+      <span>🐧 Linux</span>
+      <span>🐳 Docker</span>
+      <span>🆓 Kostenlos</span>
+    </div>
+  </div>
+  <div>
+    <div class="hero-visual">
+      <div class="mock-titlebar">
+        <div class="mock-dot red"></div>
+        <div class="mock-dot yellow"></div>
+        <div class="mock-dot green"></div>
+        <div class="mock-title">⛏️ MC Host Panel</div>
+      </div>
+      <div class="mock-body">
+        <div class="mock-btns">
+          <div class="mock-btn green">▶ Starten</div>
+          <div class="mock-btn red">⏹ Stoppen</div>
+          <div class="mock-btn gray">↻ Neustart</div>
+        </div>
+        <div class="mock-stat-row">
+          <div class="mock-stat">
+            <div class="mock-stat-label">Status</div>
+            <div class="mock-stat-val green">Online</div>
+          </div>
+          <div class="mock-stat">
+            <div class="mock-stat-label">Spieler</div>
+            <div class="mock-stat-val blue">3 / 20</div>
+          </div>
+          <div class="mock-stat">
+            <div class="mock-stat-label">Uptime</div>
+            <div class="mock-stat-val">2h 14m</div>
+          </div>
+        </div>
+        <div class="mock-console">
+          <div><span class="g">[12:00:01]</span> Server starting on port 25565</div>
+          <div><span class="g">[12:00:04]</span> <span class="b">Done (3.42s)!</span> For help, type "help"</div>
+          <div><span class="g">[12:00:11]</span> <span class="y">Steve joined the game</span></div>
+          <div><span class="g">[12:01:02]</span> <span class="y">Alex joined the game</span></div>
+          <div><span class="g">[12:02:30]</span> [Panel] Automatisches Backup erstellt</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Stats ─────────────────────────────────────────────────────────────── -->
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat-item">
+      <div class="stat-num">Paper</div>
+      <div class="stat-desc">NeoForge · Fabric · Spigot</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">100%</div>
+      <div class="stat-desc">Kostenlos &amp; Open Source</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">3</div>
+      <div class="stat-desc">Deployment-Optionen</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">0</div>
+      <div class="stat-desc">Konfiguration nötig</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Features ──────────────────────────────────────────────────────────── -->
+<section id="features">
+  <div class="section-label">⚙ Features</div>
+  <h2>Alles was du brauchst.</h2>
+  <p class="sub">Von der Erstinstallation bis zu automatischen Backups — MC Host Panel erledigt alles über eine einzige Oberfläche.</p>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(35,134,54,0.15);">📊</div>
+      <h3>Live Dashboard</h3>
+      <p>Server-Status, Online-Spieler, Uptime und IP-Adressen auf einen Blick — automatisch aktualisiert per WebSocket.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(88,166,255,0.12);">💻</div>
+      <h3>Integrierte Konsole</h3>
+      <p>Befehle absenden, Logs mit Farbkodierung lesen, Befehlshistorie mit ↑/↓ — direkt im Browser.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(163,113,247,0.12);">🧩</div>
+      <h3>Mods &amp; Plugins</h3>
+      <p>Suche direkt auf Modrinth und CurseForge — ein Klick installiert Mods und Plugins automatisch.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(248,81,73,0.12);">💾</div>
+      <h3>Automatische Backups</h3>
+      <p>Welt-Backups in konfigurierbaren Intervallen, automatisches Aufräumen alter Backups, manueller Backup-Button.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(210,153,34,0.12);">⚙️</div>
+      <h3>Server Properties</h3>
+      <p>Alle wichtigen server.properties-Einstellungen direkt im UI bearbeiten — kein Texteditor nötig.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(35,134,54,0.15);">🌐</div>
+      <h3>Netzwerk-Info</h3>
+      <p>Lokale und öffentliche IP automatisch ermittelt, Port-Freigabe prüfen, Verbindungsinfos kopieren.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(88,166,255,0.12);">🔒</div>
+      <h3>Server-Modus mit Auth</h3>
+      <p>Auf einem VPS hosten? Passwort-Schutz via Session-Auth, HTTPS-fähig, Nutzername konfigurierbar.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(163,113,247,0.12);">👑</div>
+      <h3>Owner-Panel</h3>
+      <p>Op/Deop, Whitelist, Bans, Kick — alle Moderations-Aktionen ohne Terminal, direkt im Panel.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(248,81,73,0.12);">↻</div>
+      <h3>Auto-Neustart</h3>
+      <p>Geplante Server-Neustarts mit Vorwarnung im Chat, automatischer Neustart nach Absturz.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── Download ───────────────────────────────────────────────────────────── -->
+<section id="download">
+  <div class="section-label">⬇ Download</div>
+  <h2>Kostenlos herunterladen.</h2>
+  <p class="sub">Wähle die passende Version für dein System. Alle Versionen sind kostenlos und benötigen keine Registrierung.</p>
+
+  <div class="download-grid">
+    <div class="dl-card featured">
+      <span class="dl-tag">Empfohlen</span>
+      <h3>🪟 Windows Installer</h3>
+      <p>Die einfachste Option für Windows-Nutzer. Installer führt dich durch die Einrichtung, Desktop-Verknüpfung wird automatisch erstellt.</p>
+      <a href="https://github.com/DEIN-GITHUB-NAME/mc-host-panel/releases/download/v1.0.0/MC.Host.Panel.Setup.1.0.0.exe" class="btn-dl">⬇ Setup herunterladen (.exe)</a>
+      <div class="dl-note">Windows 10/11 · 64-Bit · v1.0.0</div>
+    </div>
+    <div class="dl-card">
+      <span class="dl-tag blue">Portable</span>
+      <h3>💼 Windows Portable</h3>
+      <p>Keine Installation nötig. EXE-Datei starten und sofort loslegen. Ideal für USB-Sticks oder wenn keine Admin-Rechte vorhanden sind.</p>
+      <a href="https://github.com/DEIN-GITHUB-NAME/mc-host-panel/releases/download/v1.0.0/MC.Host.Panel.1.0.0.exe" class="btn-dl">⬇ Portable herunterladen (.exe)</a>
+      <div class="dl-note">Windows 10/11 · 64-Bit · v1.0.0</div>
+    </div>
+    <div class="dl-card">
+      <span class="dl-tag gray">Server</span>
+      <h3>🐧 Linux / VPS</h3>
+      <p>Node.js-Server direkt auf deinem Linux-VPS oder Dedicated Server deployen. Inkl. systemd-Service und Docker-Unterstützung.</p>
+      <a href="#docs" class="btn-dl">📖 Anleitung ansehen</a>
+      <div class="dl-note">Node.js 18+ erforderlich</div>
+    </div>
+  </div>
+
+  <div style="margin-top:20px; padding:16px 20px; background:var(--bg2); border:1px solid var(--border); border-radius:10px; font-size:13px; color:var(--text2);">
+    <strong style="color:var(--text);">📋 Voraussetzungen:</strong>
+    Java 21+ für den Minecraft-Server (nicht das Panel selbst) —
+    <a href="https://adoptium.net" target="_blank" rel="noopener">Adoptium (Eclipse Temurin)</a> empfohlen.
+    Das Panel selbst bringt Node.js bereits mit.
+  </div>
+</section>
+
+<!-- ── Docs ───────────────────────────────────────────────────────────────── -->
+<section id="docs">
+  <div class="section-label">📖 Dokumentation</div>
+  <h2>Schnellstart &amp; Einrichtung.</h2>
+  <p class="sub">Alles was du brauchst, um deinen Minecraft-Server in wenigen Minuten zum Laufen zu bringen.</p>
+
+  <div class="docs-grid" style="margin-top:48px;">
+    <!-- Sidebar nav -->
+    <div>
+      <div class="docs-nav">
+        <div class="docs-nav-section">Erste Schritte</div>
+        <button class="docs-nav-item active" onclick="showDoc('quickstart')">🚀 Schnellstart (Windows)</button>
+        <button class="docs-nav-item" onclick="showDoc('server')">🐧 Server / Linux</button>
+        <button class="docs-nav-item" onclick="showDoc('docker')">🐳 Docker</button>
+        <div class="docs-nav-section">Konfiguration</div>
+        <button class="docs-nav-item" onclick="showDoc('config')">⚙️ Panel konfigurieren</button>
+        <button class="docs-nav-item" onclick="showDoc('mods')">🧩 Mods &amp; Plugins</button>
+        <button class="docs-nav-item" onclick="showDoc('backup')">💾 Backups</button>
+        <div class="docs-nav-section">Referenz</div>
+        <button class="docs-nav-item" onclick="showDoc('env')">🔧 Umgebungsvariablen</button>
+        <button class="docs-nav-item" onclick="showDoc('ports')">🌐 Ports &amp; Firewall</button>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="docs-content">
+
+      <!-- Quickstart -->
+      <div class="doc-page active" id="doc-quickstart">
+        <h3>🚀 Schnellstart – Windows PC</h3>
+        <p>In 5 Minuten zum laufenden Minecraft-Server auf deinem Windows-PC.</p>
+
+        <h4>Voraussetzungen</h4>
+        <ul>
+          <li>Windows 10 oder 11 (64-Bit)</li>
+          <li>Java 21+ – <a href="https://adoptium.net/temurin/releases/?version=21" target="_blank" rel="noopener">Adoptium Temurin 21</a> herunterladen</li>
+          <li>Mindestens 2 GB freien RAM</li>
+        </ul>
+
+        <h4>Installation</h4>
+        <ol class="step-list">
+          <li><div><strong>Installer herunterladen</strong> "MC Host Panel Setup.exe" oben herunterladen und ausführen.</div></li>
+          <li><div><strong>App starten</strong> Desktop-Verknüpfung oder Start-Menü → "MC Host Panel".</div></li>
+          <li><div><strong>Lokal verbinden</strong> Im Verbindungsfenster unten links auf <strong>🖥 Lokal</strong> klicken.</div></li>
+          <li><div><strong>Server-Verzeichnis wählen</strong> Im Tab "Einstellungen" ein Verzeichnis für den Server auswählen (z.B. <code>C:\minecraft-server</code>).</div></li>
+          <li><div><strong>Paper herunterladen</strong> Tab "Einstellungen" → "Paper herunterladen" → Minecraft-Version auswählen → Download starten.</div></li>
+          <li><div><strong>Server starten</strong> Grünen "Starten"-Button drücken. Die EULA wird automatisch akzeptiert.</div></li>
+        </ol>
+
+        <div class="info-box">
+          💡 Der Server läuft auf <strong>Port 25565</strong>. Andere Geräte im selben Netzwerk können sich über deine lokale IP verbinden, die im Tab "Netzwerk" angezeigt wird.
+        </div>
+
+        <h4>Portfreigabe für Internet-Zugang</h4>
+        <p>Damit Spieler von außerhalb deines Netzwerks verbinden können, muss Port 25565 (TCP) im Router weitergeleitet werden. Suche dazu in deiner Router-Oberfläche nach "Portweiterleitung" und trage deine lokale IP ein.</p>
+      </div>
+
+      <!-- Server/Linux -->
+      <div class="doc-page" id="doc-server">
+        <h3>🐧 Server-Modus – Linux / VPS</h3>
+        <p>MC Host Panel auf einem Linux-Server deployen — mit Passwort-Schutz und automatischem Start.</p>
+
+        <h4>Voraussetzungen</h4>
+        <ul>
+          <li>Ubuntu 20.04+ / Debian 11+ (oder vergleichbar)</li>
+          <li>Node.js 18+ und npm</li>
+          <li>Java 21+ für den Minecraft-Server</li>
+        </ul>
+
+        <h4>Installation</h4>
+        <pre><span class="c"># Node.js installieren</span>
+<span class="b">curl</span> -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+<span class="b">sudo apt</span> install -y nodejs
+
+<span class="c"># Java 21 installieren</span>
+<span class="b">sudo apt</span> install -y openjdk-21-jdk-headless
+
+<span class="c"># Panel herunterladen und installieren</span>
+<span class="b">git clone</span> https://github.com/dein-user/mc-host-panel.git
+<span class="b">cd</span> mc-host-panel
+<span class="b">npm install</span> --omit=dev</pre>
+
+        <h4>Konfiguration (.env)</h4>
+        <pre><span class="b">cp</span> .env.example .env
+<span class="b">nano</span> .env</pre>
+        <pre><span class="c"># .env</span>
+<span class="g">PANEL_USERNAME</span>=admin
+<span class="g">PANEL_PASSWORD</span>=dein-sicheres-passwort
+<span class="g">PORT</span>=3000</pre>
+
+        <h4>Als systemd-Service einrichten</h4>
+        <pre><span class="b">sudo nano</span> /etc/systemd/system/mc-host-panel.service</pre>
+        <pre>[Unit]
+Description=MC Host Panel
+After=network.target
+
+[Service]
+Type=simple
+User=minecraft
+WorkingDirectory=/opt/mc-host-panel
+EnvironmentFile=/opt/mc-host-panel/.env
+Environment=PANEL_MODE=server
+ExecStart=/usr/bin/node server.js
+Restart=always
+
+[Install]
+WantedBy=multi-user.target</pre>
+        <pre><span class="b">sudo systemctl</span> daemon-reload
+<span class="b">sudo systemctl</span> enable mc-host-panel
+<span class="b">sudo systemctl</span> start mc-host-panel</pre>
+
+        <div class="warn-box">
+          ⚠️ Setze immer ein starkes Passwort, wenn das Panel über das Internet erreichbar ist!
+        </div>
+      </div>
+
+      <!-- Docker -->
+      <div class="doc-page" id="doc-docker">
+        <h3>🐳 Docker</h3>
+        <p>MC Host Panel mit Docker Compose in wenigen Minuten deployen.</p>
+
+        <h4>docker-compose.yml</h4>
+        <pre>version: '3.8'
+services:
+  mc-panel:
+    build: .
+    ports:
+      - "<span class="g">3000</span>:3000"
+      - "<span class="g">25565</span>:25565"
+    environment:
+      - PANEL_MODE=server
+      - PANEL_USERNAME=admin
+      - PANEL_PASSWORD=dein-passwort
+    volumes:
+      - minecraft-data:/data/minecraft
+      - panel-config:/root/.mc-host-panel
+    restart: unless-stopped
+
+volumes:
+  minecraft-data:
+  panel-config:</pre>
+
+        <h4>Starten</h4>
+        <pre><span class="c"># Image bauen und starten</span>
+<span class="b">docker compose up</span> -d
+
+<span class="c"># Logs anzeigen</span>
+<span class="b">docker compose logs</span> -f
+
+<span class="c"># Stoppen</span>
+<span class="b">docker compose down</span></pre>
+
+        <div class="info-box">
+          💡 Das Panel ist dann unter <strong>http://server-ip:3000</strong> erreichbar. Port 25565 ist der Minecraft-Server-Port.
+        </div>
+      </div>
+
+      <!-- Config -->
+      <div class="doc-page" id="doc-config">
+        <h3>⚙️ Panel konfigurieren</h3>
+
+        <h4>Server-Einstellungen (Tab: Einstellungen)</h4>
+        <ul>
+          <li><strong>Server-Verzeichnis</strong> – Ordner wo der Minecraft-Server liegt</li>
+          <li><strong>JAR-Datei</strong> – Name der Server-JAR (standard: <code>server.jar</code>)</li>
+          <li><strong>Java-Pfad</strong> – Pfad zu Java (standard: <code>java</code> aus PATH)</li>
+          <li><strong>Min/Max RAM</strong> – z.B. <code>512M</code> und <code>4G</code></li>
+          <li><strong>Neustart bei Absturz</strong> – Automatisch neu starten wenn Server crasht</li>
+        </ul>
+
+        <h4>Server-Typen</h4>
+        <ul>
+          <li><strong>Paper</strong> – Empfohlen für Plugins, direkt über das Panel herunterladbar</li>
+          <li><strong>NeoForge</strong> – Für Minecraft-Mods, Installation über Tab "Einstellungen"</li>
+          <li><strong>Fabric</strong> – Leichtgewichtige Mod-Plattform, ebenfalls automatisch installierbar</li>
+          <li><strong>Spigot / Forge</strong> – JAR manuell ins Server-Verzeichnis legen</li>
+        </ul>
+
+        <h4>Konfigurationsdatei</h4>
+        <p>Alle Panel-Einstellungen werden in <code>~/.mc-host-panel/config.json</code> gespeichert.</p>
+      </div>
+
+      <!-- Mods -->
+      <div class="doc-page" id="doc-mods">
+        <h3>🧩 Mods &amp; Plugins</h3>
+
+        <h4>Mods suchen und installieren</h4>
+        <ol class="step-list">
+          <li><div><strong>Tab "Mods &amp; Plugins" öffnen</strong></div></li>
+          <li><div><strong>Loader und MC-Version einstellen</strong> z.B. Fabric, 1.21.1</div></li>
+          <li><div><strong>Suchen</strong> Name eingeben, Plattform wählen (Modrinth / CurseForge / Beide)</div></li>
+          <li><div><strong>Installieren</strong> Klick auf "Installieren" – Datei wird automatisch heruntergeladen</div></li>
+        </ol>
+
+        <h4>CurseForge API-Schlüssel</h4>
+        <p>Für CurseForge-Suche wird ein kostenloser API-Schlüssel benötigt:</p>
+        <ol class="step-list">
+          <li><div>Auf <a href="https://console.curseforge.com" target="_blank" rel="noopener">console.curseforge.com</a> registrieren</div></li>
+          <li><div>API-Schlüssel generieren</div></li>
+          <li><div>In Tab "Mods &amp; Plugins" → Einstellungen eintragen</div></li>
+        </ol>
+
+        <div class="info-box">
+          💡 Modrinth ist kostenlos ohne API-Schlüssel nutzbar und enthält die meisten modernen Mods.
+        </div>
+      </div>
+
+      <!-- Backup -->
+      <div class="doc-page" id="doc-backup">
+        <h3>💾 Backups</h3>
+
+        <h4>Manuelles Backup</h4>
+        <p>Tab "Backup" → "Jetzt sichern". Das Panel sendet vor dem Backup automatisch <code>save-all</code> und <code>save-off</code> an den laufenden Server.</p>
+
+        <h4>Automatische Backups</h4>
+        <ul>
+          <li><strong>Backup-Verzeichnis</strong> – Wo Backups gespeichert werden (z.B. <code>C:\minecraft-backups</code>)</li>
+          <li><strong>Intervall</strong> – Alle X Stunden automatisch sichern</li>
+          <li><strong>Aufbewahrung</strong> – Maximale Anzahl Backups (ältere werden gelöscht)</li>
+        </ul>
+
+        <h4>Auto-Neustart</h4>
+        <ul>
+          <li><strong>Intervall</strong> – Server alle X Stunden neu starten</li>
+          <li><strong>Vorwarnung</strong> – Spieler werden Y Minuten vorher im Chat benachrichtigt</li>
+        </ul>
+
+        <div class="warn-box">
+          ⚠️ Stelle sicher dass das Backup-Verzeichnis auf einem anderen Laufwerk als der Server liegt um Datenverlust zu vermeiden.
+        </div>
+      </div>
+
+      <!-- Env vars -->
+      <div class="doc-page" id="doc-env">
+        <h3>🔧 Umgebungsvariablen</h3>
+        <p>Das Panel wird über folgende Umgebungsvariablen konfiguriert (in <code>.env</code> oder direkt gesetzt):</p>
+
+        <table style="width:100%; border-collapse:collapse; margin-top:14px;">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border);">
+              <th style="text-align:left; padding:8px 12px; font-size:13px; color:var(--text2);">Variable</th>
+              <th style="text-align:left; padding:8px 12px; font-size:13px; color:var(--text2);">Standard</th>
+              <th style="text-align:left; padding:8px 12px; font-size:13px; color:var(--text2);">Beschreibung</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>PANEL_MODE</code></td>
+              <td style="padding:8px 12px; color:var(--text2); font-size:13px;"><code>local</code></td>
+              <td style="padding:8px 12px; color:var(--text2); font-size:13px;"><code>local</code> | <code>server</code> | <code>electron</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>PORT</code></td>
+              <td style="padding:8px 12px; color:var(--text2); font-size:13px;"><code>3000</code></td>
+              <td style="padding:8px 12px; color:var(--text2); font-size:13px;">HTTP-Port des Panels</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>PANEL_USERNAME</code></td>
+              <td style="padding:8px 12px; color:var(--text2); font-size:13px;"><code>admin</code></td>
+              <td style="padding:8px 12px; color:var(--text2); font-size:13px;">Benutzername (Server-Modus)</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 12px;"><code>PANEL_PASSWORD</code></td>
+              <td style="padding:8px 12px; color:var(--text2); font-size:13px;"><em>leer</em></td>
+              <td style="padding:8px 12px; color:var(--text2); font-size:13px;">Passwort (Server-Modus, leer = kein Schutz)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Ports -->
+      <div class="doc-page" id="doc-ports">
+        <h3>🌐 Ports &amp; Firewall</h3>
+
+        <h4>Standard-Ports</h4>
+        <ul>
+          <li><strong>Port 3000</strong> – MC Host Panel Web-Interface (HTTP)</li>
+          <li><strong>Port 25565</strong> – Minecraft-Server (TCP, für Spieler)</li>
+        </ul>
+
+        <h4>Portweiterleitung (Router)</h4>
+        <ol class="step-list">
+          <li><div><strong>Router-Oberfläche öffnen</strong> meist <code>192.168.1.1</code> oder <code>192.168.0.1</code></div></li>
+          <li><div><strong>Portweiterleitung finden</strong> unter "NAT", "Firewall" oder "Portfreigabe"</div></li>
+          <li><div><strong>Regel hinzufügen:</strong> Externer Port <code>25565</code> → Interne IP deines PCs → Interner Port <code>25565</code> (Protokoll: TCP)</div></li>
+        </ol>
+
+        <h4>Linux-Firewall (ufw)</h4>
+        <pre><span class="c"># Panel und Minecraft-Server freigeben</span>
+<span class="b">sudo ufw</span> allow 3000/tcp
+<span class="b">sudo ufw</span> allow 25565/tcp
+<span class="b">sudo ufw</span> reload</pre>
+
+        <div class="info-box">
+          💡 Deine öffentliche IP wird im Tab "Netzwerk" automatisch angezeigt. Port 3000 muss nur freigegeben werden wenn das Panel von außen erreichbar sein soll.
+        </div>
+      </div>
+
+    </div><!-- /.docs-content -->
+  </div><!-- /.docs-grid -->
+</section>
+
+<!-- ── FAQ ────────────────────────────────────────────────────────────────── -->
+<section id="faq">
+  <div class="section-label">❓ FAQ</div>
+  <h2>Häufige Fragen.</h2>
+
+  <div class="faq-grid">
+    <div class="faq-item">
+      <h4>Muss ich Node.js selbst installieren?</h4>
+      <p>Nein. Die Windows-EXE (Installer und Portable) enthält alles Nötige. Node.js ist bereits eingebettet. Nur Java 21 muss separat installiert werden.</p>
+    </div>
+    <div class="faq-item">
+      <h4>Welche Minecraft-Server-Versionen werden unterstützt?</h4>
+      <p>Paper für alle aktuellen MC-Versionen, NeoForge 1.20.1+, Fabric, Spigot und Forge (JAR manuell platzieren). Das Panel startet jede beliebige JAR-Datei.</p>
+    </div>
+    <div class="faq-item">
+      <h4>Kann ich das Panel remote steuern (auf einem anderen PC)?</h4>
+      <p>Ja. Starte das Panel im Server-Modus (<code>start-server.bat</code> / <code>start-server.sh</code>), dann ist es über Browser auf allen Geräten im Netzwerk erreichbar.</p>
+    </div>
+    <div class="faq-item">
+      <h4>Wie sicher ist der Server-Modus?</h4>
+      <p>Session-basierte Auth mit sicherem Secret, <code>httpOnly</code>-Cookies, Passwort-Hash nicht gespeichert. Für Internet-Zugang empfehlen wir zusätzlich einen HTTPS-Reverse-Proxy (nginx).</p>
+    </div>
+    <div class="faq-item">
+      <h4>Was passiert mit dem Minecraft-Server wenn das Panel geschlossen wird?</h4>
+      <p>In der Electron-App: Panel minimiert sich in die Systemleiste, der Server läuft weiter. Beim echten Beenden wird der Server gestoppt. Im Server-Modus läuft alles unabhängig.</p>
+    </div>
+    <div class="faq-item">
+      <h4>Wo werden Einstellungen gespeichert?</h4>
+      <p>Alle Panel-Einstellungen werden in <code>~/.mc-host-panel/</code> gespeichert — unabhängig vom Installationsort und bleiben bei Updates erhalten.</p>
+    </div>
+    <div class="faq-item">
+      <h4>Unterstützt das Panel mehrere Server gleichzeitig?</h4>
+      <p>Aktuell verwaltet eine Panel-Instanz einen Server. Für mehrere Server mehrere Instanzen auf verschiedenen Ports starten.</p>
+    </div>
+    <div class="faq-item">
+      <h4>Wie aktualisiere ich das Panel?</h4>
+      <p>Einfach den neuen Installer herunterladen und ausführen — er überschreibt die alte Installation. Einstellungen in <code>~/.mc-host-panel/</code> bleiben erhalten.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ─────────────────────────────────────────────────────────────── -->
+<footer>
+  <div class="footer-logo">
+    <span>⛏️</span> MC Host Panel
+  </div>
+  <p>Kostenlos, Open Source, für Minecraft-Enthusiasten.</p>
+  <div class="footer-links">
+    <a href="#features">Features</a>
+    <a href="#download">Download</a>
+    <a href="#docs">Dokumentation</a>
+    <a href="#faq">FAQ</a>
+  </div>
+  <p style="margin-top:20px; font-size:12px;">MC Host Panel ist kein offizielles Mojang- oder Microsoft-Produkt.</p>
+</footer>
+
+<script>
+  function showDoc(id) {
+    document.querySelectorAll('.doc-page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.docs-nav-item').forEach(b => b.classList.remove('active'));
+    const page = document.getElementById('doc-' + id);
+    if (page) page.classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+
+  // Active nav link on scroll
+  const sections = document.querySelectorAll('section[id], #hero');
+  const navLinks = document.querySelectorAll('.nav-links a');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navLinks.forEach(a => {
+          a.style.color = a.getAttribute('href') === '#' + id ? 'var(--text)' : '';
+        });
+      }
+    });
+  }, { threshold: 0.3 });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
